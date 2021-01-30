@@ -36,22 +36,46 @@ const createGallery = galleryItems.map(
 galleryRef.insertAdjacentHTML('beforeend', [...createGallery].join(''));
 
 //2. делегирования на галерее ul.js-gallery и получение url большого изображения
+galleryRef.addEventListener('click', onImageClick);
+
 function onImageClick(event) {
   event.preventDefault();
   if (event.target.nodeName !== 'IMG') return;
 
-  const activeTag = event.target.dataset.source;
-  console.log(activeTag);
+  const activeURL = event.target.dataset.source;
+  const imgDescr = event.target.alt;
+
+  galleryRef.removeEventListener; //надо ли???
+
+  openImage(activeURL, imgDescr);
 }
-galleryRef.addEventListener('click', onImageClick);
 
 //3. Модальное окно
 const lightBox = document.querySelector('.js-lightbox');
 const lightBoxImage = document.querySelector('.lightbox__image');
 
-const openModal = () => {
+const openModal = event => {
+  if (event.target.nodeName !== 'IMG') return;
+
   lightBox.classList.add('is-open');
-  const getImageScr = lightBoxImage.getAttribute('src');
 };
 
 galleryRef.addEventListener('click', openModal);
+
+//4.Подмена значения атрибута src элемента img.lightbox__image. передана колбеком в  onImageClick
+const openImage = (url, alt) => {
+  lightBoxImage.setAttribute('src', `${url}`);
+  lightBoxImage.setAttribute('alt', `${alt}`);
+};
+
+//5. Закрытие модального окна по клику на кнопку button[data-action="close-lightbox"]
+const closeBtn = document.querySelector('[data-action="close-lightbox"]');
+closeBtn.addEventListener('click', closeModal);
+
+function closeModal() {
+  lightBox.classList.remove('is-open');
+  //6. При закрытии очищаем src и alt
+  lightBoxImage.setAttribute('src', '');
+  lightBoxImage.setAttribute('alt', '');
+  closeBtn.removeEventListener; // надо ли???
+}
