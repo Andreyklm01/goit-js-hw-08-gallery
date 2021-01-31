@@ -1,30 +1,8 @@
 import galleryItems from './gallery-items.js';
 
 const galleryRef = document.querySelector('.js-gallery');
-console.log(galleryRef);
 
 // 1.Render Gallery
-// const createGallery = galleryItems.map(item => {
-//   //создание li в ul
-//   const listItem = document.createElement('li');
-//   listItem.classList.add('gallery__item');
-//   galleryRef.appendChild(listItem);
-
-//   //создание a в li и добавл класса и атрибутов
-//   const listLink = document.createElement('a');
-//   listLink.classList.add('gallery__link');
-//   listLink.setAttribute('href', `${item.original}`);
-//   listItem.appendChild(listLink);
-
-//   //cоздание img в a и добавл класса и атрибутов
-//   const listImg = document.createElement('img');
-//   listImg.classList.add('gallery__image');
-//   listImg.setAttribute('src', `${item.preview}`);
-//   listImg.setAttribute('data-source', `${item.original}`);
-//   listImg.setAttribute('alt', `${item.description}`);
-//   listLink.appendChild(listImg);
-// });
-
 const createGallery = galleryItems.map(
   item =>
     `<li class="gallery__item"> <a class="gallery__link" href="${item.original}">
@@ -45,37 +23,50 @@ function onImageClick(event) {
   const activeURL = event.target.dataset.source;
   const imgDescr = event.target.alt;
 
-  galleryRef.removeEventListener; //надо ли???
-
-  openImage(activeURL, imgDescr);
+  replaceImageSRC(activeURL, imgDescr);
 }
 
 //3. Модальное окно
 const lightBox = document.querySelector('.js-lightbox');
 const lightBoxImage = document.querySelector('.lightbox__image');
-
-const openModal = event => {
-  if (event.target.nodeName !== 'IMG') return;
-
-  lightBox.classList.add('is-open');
-};
-
 galleryRef.addEventListener('click', openModal);
 
+function openModal(event) {
+  window.addEventListener('keydown', closeModalOnEsc);
+  if (event.target.nodeName !== 'IMG') return;
+  lightBox.classList.add('is-open');
+}
+
 //4.Подмена значения атрибута src элемента img.lightbox__image. передана колбеком в  onImageClick
-const openImage = (url, alt) => {
+const replaceImageSRC = (url, alt) => {
   lightBoxImage.setAttribute('src', `${url}`);
   lightBoxImage.setAttribute('alt', `${alt}`);
 };
 
-//5. Закрытие модального окна по клику на кнопку button[data-action="close-lightbox"]
+//5. Закрытие модального окна по клику на кнопку button[data-action="close-lightbox"], overlay,ESC
 const closeBtn = document.querySelector('[data-action="close-lightbox"]');
+const closeOnOverlay = document.querySelector('.lightbox__overlay');
 closeBtn.addEventListener('click', closeModal);
+closeOnOverlay.addEventListener('click', closeModalOnOverlay);
 
-function closeModal() {
-  lightBox.classList.remove('is-open');
-  //6. При закрытии очищаем src и alt
+function removeImageSRC() {
   lightBoxImage.setAttribute('src', '');
   lightBoxImage.setAttribute('alt', '');
-  closeBtn.removeEventListener; // надо ли???
+}
+
+function closeModal() {
+  window.removeEventListener('keydown', closeModalOnEsc);
+  lightBox.classList.remove('is-open');
+  //6. При закрытии очищаем src и alt
+  removeImageSRC();
+}
+
+function closeModalOnOverlay(event) {
+  if (!event.target === event.currentTarget) return;
+  closeModal();
+}
+
+function closeModalOnEsc(event) {
+  if (event.key !== 'Escape') return;
+  closeModal();
 }
