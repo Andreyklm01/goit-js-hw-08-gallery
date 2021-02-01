@@ -1,12 +1,10 @@
 import galleryItems from './gallery-items.js';
-
 const galleryRef = document.querySelector('.js-gallery');
-
 // 1.Render Gallery
 const createGallery = galleryItems.map(
   item =>
     `<li class="gallery__item"> <a class="gallery__link" href="${item.original}">
-    <img class="gallery__image" src="${item.preview}" data-source="${item.original}" alt="${item.description}">
+    <img class="gallery__image" src="${item.preview}" data-source="${item.original}" alt="${item.description}" data-index="${item.index}"'>
     </a>
     </li>
     `,
@@ -35,6 +33,8 @@ function openModal(event) {
   window.addEventListener('keydown', closeModalOnEsc);
   if (event.target.nodeName !== 'IMG') return;
   lightBox.classList.add('is-open');
+
+  window.addEventListener('keydown', onArrowClick);
 }
 
 //4.Подмена значения атрибута src элемента img.lightbox__image. передана колбеком в  onImageClick
@@ -56,6 +56,7 @@ function removeImageSRC() {
 
 function closeModal() {
   window.removeEventListener('keydown', closeModalOnEsc);
+  window.removeEventListener('keydown', onArrowClick);
   lightBox.classList.remove('is-open');
   //6. При закрытии очищаем src и alt
   removeImageSRC();
@@ -69,4 +70,33 @@ function closeModalOnOverlay(event) {
 function closeModalOnEsc(event) {
   if (event.key !== 'Escape') return;
   closeModal();
+}
+
+const galleryArr = [];
+galleryItems.forEach(item => {
+  galleryArr.push(item.original);
+});
+console.log(galleryArr);
+
+//????? ПЕРЕДЕЛАТЬ!!!
+function onArrowClick(event) {
+  let index = galleryArr.indexOf(lightBoxImage.src);
+
+  if (event.keyCode === 37) {
+    // console.log('стрелка влево');
+    if (index > galleryArr.length - 1) {
+      lightBoxImage.setAttribute('src', galleryArr[index - 1]);
+    } else {
+      index = -1;
+      lightBoxImage.setAttribute('src', galleryArr[index + 1]);
+    }
+  } else if (event.keyCode === 39) {
+    // console.log('стрелка вправо');
+    if (index === 0) {
+      index = galleryArr.length;
+      lightBoxImage.setAttribute('src', galleryArr[index - 1]);
+    } else {
+      lightBoxImage.setAttribute('src', galleryArr[index - 1]);
+    }
+  } else return;
 }
